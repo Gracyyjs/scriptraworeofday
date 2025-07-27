@@ -2,7 +2,7 @@
   "version": 2,
   "routes": [
     { "src": "/", "dest": "/index.html" },
-    { "src": "/save", "dest": "/save.js" },
-    { "src": "/raw", "dest": "/raw.js" }
+    { "src": "/save", "dest": "/api/save.js" },
+    { "src": "/raw", "dest": "/api/raw.js" }
   ]
 }
