@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@vercel/blob": "^0.15.1",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "@octokit/rest": "^19.0.7"
   },
   "engines": {
     "node": ">=18"
