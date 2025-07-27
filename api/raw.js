@@ -1,46 +1,31 @@
-import fs from 'fs/promises';
-import path from 'path';
-
-const storagePath = path.resolve('./api/storage.json');
+import { get } from '@vercel/blob';
 
 export default async function handler(req, res) {
-  const { id } = req.query;
-  if (!id || !/^[a-f0-9]{12}$/.test(id)) {
-    return res.status(404).send('ID inválido');
-  }
-
+  const id = req.query.id;
   const ua = req.headers['user-agent'] || '';
+
+  if (!id) return res.status(400).send('ID ausente.');
+
   if (!ua.includes('Roblox/WinHttp')) {
-    return res.status(403).send(`
-      <!DOCTYPE html>
-      <html lang="pt-BR" class="h-full">
-      <head>
-        <meta charset="UTF-8" />
-        <title>Acesso Restrito</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-      </head>
-      <body class="bg-red-900 text-white flex items-center justify-center h-full">
-        <div class="text-center space-y-4">
-          <h1 class="text-4xl font-bold text-red-300">🚫 Acesso Restrito!</h1>
-          <p class="text-lg">Este conteúdo só pode ser acessado pelo Dono.</p>
-        </div>
-      </body>
+    res.status(403).send(`
+      <html>
+        <head><title>Acesso Restrito</title></head>
+        <body style="font-family:sans-serif;text-align:center;padding:50px">
+          <h1>Acesso restrito!</h1>
+          <p>Este recurso só pode ser acessado pelo Dono.</p>
+        </body>
       </html>
     `);
+    return;
   }
 
   try {
-    const file = await fs.readFile(storagePath, 'utf-8');
-    const json = JSON.parse(file);
-    const code = json[id];
-
-    if (!code) {
-      return res.status(404).send('Código não encontrado');
-    }
+    const blob = await get(`scripts/${id}.lua`);
+    const content = await blob.text();
 
     res.setHeader('Content-Type', 'text/plain');
-    res.status(200).send(code);
+    res.send(content);
   } catch {
-    res.status(500).send('Erro interno ao ler código');
+    res.status(404).send('Script não encontrado.');
   }
 }
