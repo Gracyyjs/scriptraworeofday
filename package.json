@@ -1,0 +1,13 @@
+{
+  "name": "scriptraw",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "vercel build",
+    "start": "vercel start"
+  },
+  "dependencies": {
+    "@vercel/blob": "^1.0.1"
+  }
+}
