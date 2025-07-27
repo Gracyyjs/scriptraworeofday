@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScriptOreofday - Proteção de Scripts</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .loading { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white min-h-full flex items-center justify-center p-4">
+  <div class="max-w-2xl w-full space-y-8">
+    <!-- Header -->
+    <div class="text-center space-y-4">
+      <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+        🛡️ ScriptOreofday
+      </h1>
+      <p class="text-gray-300 text-lg">Proteja seus scripts Lua com segurança avançada</p>
+      <div class="bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-3">
+        <p class="text-yellow-300 text-sm">
+          ⚠️ <strong>Proteção Ativa:</strong> Apenas Pessoas Autorizados Tem acesso
+        </p>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-gray-800/60 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-700/50 p-8">
+      <form id="form" class="space-y-6">
+        <div class="space-y-2">
+          <label for="code" class="block text-sm font-medium text-gray-300">
+            📝 Código Lua
+          </label>
+          <textarea 
+            id="code" 
+            class="w-full h-48 p-4 rounded-lg bg-gray-900/80 text-white resize-none border border-gray-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 font-mono text-sm" 
+            placeholder="-- Cole seu código Lua aqui...
+print('Hello, World!')
+game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 50"
+            required
+          ></textarea>
+        </div>
+        
+        <button 
+          type="submit" 
+          id="submitBtn"
+          class="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span id="submitText">🚀 Gerar Link Protegido</span>
+          <span id="loadingText" class="hidden">
+            <span class="loading inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span>
+            Processando...
+          </span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Result -->
+    <div id="result" class="bg-gray-800/60 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-700/50 p-6 hidden">
+      <div class="space-y-4">
+        <h3 class="text-xl font-bold text-green-400 text-center">✅ Link Gerado com Sucesso!</h3>
+        <div class="bg-gray-900/80 rounded-lg p-4 border border-gray-600">
+          <p class="text-gray-300 text-sm mb-2">🔗 Link RAW:</p>
+          <div class="flex items-center space-x-2">
+            <input 
+              type="text" 
+              id="linkInput" 
+              class="flex-1 bg-gray-800 text-white p-2 rounded border border-gray-600 text-sm font-mono" 
+              readonly
+            >
+            <button 
+              id="copyBtn"
+              class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm transition-colors duration-200"
+            >
+              📋 Copiar
+            </button>
+          </div>
+        </div>
+        <div class="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3">
+          <p class="text-blue-300 text-sm">
+            💡 <strong>Como usar:</strong> Use loadstring(game:HttpGet("SEU_LINK"))() no Roblox
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="bg-gray-800/40 backdrop-blur-sm rounded-xl border border-gray-700/30 p-6">
+      <h3 class="text-lg font-bold text-purple-400 mb-3">🔒 Recursos de Segurança</h3>
+      <ul class="space-y-2 text-gray-300 text-sm">
+        <li class="flex items-center space-x-2">
+          <span class="text-green-400">✓</span>
+          <span>Proteção por OreOFDAY</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-green-400">✓</span>
+          <span>Links únicos e seguros</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-green-400">✓</span>
+          <span>Retorno em texto puro (.lua)</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-green-400">✓</span>
+          <span>Cache otimizado para performance</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('form');
+    const result = document.getElementById('result');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitText = document.getElementById('submitText');
+    const loadingText = document.getElementById('loadingText');
+    const linkInput = document.getElementById('linkInput');
+    const copyBtn = document.getElementById('copyBtn');
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const code = document.getElementById('code').value.trim();
+      
+      if (!code) {
+        alert('Por favor, insira um código!');
+        return;
+      }
+
+      // UI Loading
+      submitBtn.disabled = true;
+      submitText.classList.add('hidden');
+      loadingText.classList.remove('hidden');
+      result.classList.add('hidden');
+
+      try {
+        const res = await fetch('/save', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({code})
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const link = `${window.location.origin}/raw?id=${data.id}`;
+          
+          linkInput.value = link;
+          result.classList.remove('hidden');
+          
+          // Scroll para o resultado
+          result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          const error = await res.json();
+          alert(`Erro: ${error.error || 'Erro desconhecido'}`);
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro de conexão. Tente novamente.');
+      } finally {
+        // UI Reset
+        submitBtn.disabled = false;
+        submitText.classList.remove('hidden');
+        loadingText.classList.add('hidden');
+      }
+    });
+
+    // Copy functionality
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(linkInput.value);
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = '✅ Copiado!';
+        copyBtn.classList.add('bg-green-500');
+        copyBtn.classList.remove('bg-blue-500');
+        
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+          copyBtn.classList.remove('bg-green-500');
+          copyBtn.classList.add('bg-blue-500');
+        }, 2000);
+      } catch (err) {
+        // Fallback para navegadores mais antigos
+        linkInput.select();
+        document.execCommand('copy');
+        alert('Link copiado!');
+      }
+    });
+
+    // Auto-resize textarea
+    const textarea = document.getElementById('code');
+    textarea.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 400) + 'px';
+    });
+  </script>
+</body>
+</html>
