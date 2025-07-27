@@ -1,6 +1,8 @@
+import fs from 'fs/promises';
+import path from 'path';
 import crypto from 'crypto';
 
-let storage = {};
+const storagePath = path.resolve('./api/storage.json');
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -26,7 +28,16 @@ export default async function handler(req, res) {
   }
 
   const id = crypto.randomBytes(6).toString('hex');
-  storage[id] = code.trim();
+
+  // Ler e salvar no JSON
+  try {
+    const file = await fs.readFile(storagePath, 'utf-8');
+    const json = JSON.parse(file);
+    json[id] = code.trim();
+    await fs.writeFile(storagePath, JSON.stringify(json, null, 2));
+  } catch (err) {
+    return res.status(500).json({ error: 'Falha ao salvar no JSON' });
+  }
 
   res.status(200).json({ id });
 }
