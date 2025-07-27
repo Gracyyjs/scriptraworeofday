@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <title>ScriptOreofday</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white h-full flex items-center justify-center">
+  <div class="max-w-xl w-full p-8 bg-gray-800 rounded-2xl shadow-lg space-y-6">
+    <h1 class="text-2xl font-bold text-center">ScriptOreofday deixe seu script protegido!</h1>
+    <form id="form" class="space-y-4">
+      <textarea id="code" class="w-full h-40 p-4 rounded bg-gray-700 text-white resize-none" placeholder="Cole seu código aqui..." required></textarea>
+      <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+        Gerar Link
+      </button>
+    </form>
+    <div id="result" class="bg-gray-700 p-4 rounded text-center break-words hidden"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('form');
+    const result = document.getElementById('result');
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const code = document.getElementById('code').value.trim();
+      if (!code) return;
+
+      const res = await fetch('/save', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code})
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const link = `${window.location.origin}/raw?id=${data.id}`;
+        result.innerHTML = `<p>🌐 Link RAW:</p><a href="${link}" class="text-blue-400 underline" target="_blank" rel="noopener">${link}</a>`;
+        result.classList.remove('hidden');
+      } else {
+        result.textContent = 'Erro ao gerar o link.';
+        result.classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
