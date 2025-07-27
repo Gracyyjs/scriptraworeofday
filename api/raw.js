@@ -1,4 +1,5 @@
-const scripts = global.scripts || (global.scripts = new Map());
+import { connectToDatabase } from '../../lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export default async function handler(req, res) {
   const { id } = req.query;
@@ -6,15 +7,16 @@ export default async function handler(req, res) {
   if (!id) return res.status(400).send('ID não fornecido');
 
   const userAgent = req.headers['user-agent'] || '';
-  const isRobloxAgent = userAgent.includes('Roblox/WinHttp') || 
-                        userAgent.toLowerCase().includes('roblox');
+  const isRobloxAgent =
+    userAgent.includes('Roblox/WinHttp') ||
+    userAgent.toLowerCase().includes('roblox');
 
   if (!isRobloxAgent) {
     return res.status(403).send(`
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Acesso Negado</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -29,11 +31,19 @@ export default async function handler(req, res) {
     `);
   }
 
-  if (!scripts.has(id)) {
-    return res.status(404).send('Script não encontrado');
+  const client = await connectToDatabase();
+  const db = client.db('jrizzDB');
+  const collection = db.collection('scripts');
+
+  let script;
+  try {
+    script = await collection.findOne({ _id: new ObjectId(id) });
+  } catch {
+    return res.status(400).send('ID inválido');
   }
 
-  const code = scripts.get(id);
+  if (!script) return res.status(404).send('Script não encontrado');
+
   res.setHeader('Content-Type', 'text/plain');
-  res.status(200).send(code);
+  res.status(200).send(script.code);
 }
