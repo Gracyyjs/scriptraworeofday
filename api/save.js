@@ -1,7 +1,4 @@
-import fs from 'fs/promises';
-import path from 'path';
-import crypto from 'crypto';
-import os from 'os';
+const scripts = global.scripts || (global.scripts = new Map());
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -16,13 +13,10 @@ export default async function handler(req, res) {
 
   try {
     const id = crypto.randomUUID();
-    const filePath = path.join(os.tmpdir(), `${id}.lua`);
-
-    await fs.writeFile(filePath, code, 'utf-8');
+    scripts.set(id, code);
 
     res.status(200).json({ id, url: `/api/raw?id=${id}` });
   } catch (err) {
-    console.error('Erro ao salvar script:', err);
-    res.status(500).json({ error: 'Erro interno do servidor' });
+    res.status(500).json({ error: err.message });
   }
 }
