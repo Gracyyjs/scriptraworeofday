@@ -1,6 +1,4 @@
-import { put } from '@vercel/blob';
-
-const token = 'WUw7k9tGsYWnYCI5h1bjMGtY';
+import { saveCode } from '../../lib/blob';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send('Método não permitido');
@@ -9,16 +7,10 @@ export default async function handler(req, res) {
   if (!code) return res.status(400).send('Código ausente');
 
   const id = Math.random().toString(36).slice(2, 12);
-
   try {
-    const blob = await put(`scriptraw/${id}.lua`, code, {
-      access: 'public',
-      token
-    });
-
-    res.status(200).json({ id, url: blob.url });
+    const url = await saveCode(id, code);
+    res.status(200).json({ id, url });
   } catch (err) {
-    console.error('Erro no save.js:', err);
-    res.status(500).json({ error: 'Erro interno ao salvar o script', detail: err.message });
+    res.status(500).send('Erro ao salvar');
   }
 }
