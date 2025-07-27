@@ -6,6 +6,7 @@ export default async function handler(req, res) {
 
   const userAgent = req.headers['user-agent'] || '';
   const isRoblox = userAgent.includes('Roblox/WinHttp') || userAgent.toLowerCase().includes('roblox');
+  
   if (!isRoblox) {
     return res.status(403).send(`
 <!DOCTYPE html>
@@ -22,8 +23,7 @@ export default async function handler(req, res) {
     <div class="mt-4 text-sm text-gray-400">TuxProtector &copy; 2025</div>
   </div>
 </body>
-</html>
-    `);
+</html>`);
   }
 
   try {
