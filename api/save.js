@@ -1,6 +1,6 @@
 import { put } from '@vercel/blob';
 
-const token = 'EZKaEGLzFoBdJxpAuur3DT6A';
+const token = 'WUw7k9tGsYWnYCI5h1bjMGtY';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send('Método não permitido');
