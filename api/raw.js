@@ -22,7 +22,7 @@ export default async function handler(req, res) {
   <div class="bg-red-800 p-8 rounded-2xl shadow-2xl max-w-md text-center">
     <h1 class="text-3xl font-bold mb-4">🚫 Acesso Negado</h1>
     <p class="text-lg mb-3">Este script só pode ser acessado pelo Roblox.</p>
-    <div class="mt-4 text-sm text-gray-400">ScriptOreofday &copy; 2025</div>
+    <div class="mt-4 text-sm text-gray-400">TuxProtector &copy; 2025</div>
   </div>
 </body>
 </html>
