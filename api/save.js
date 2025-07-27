@@ -1,35 +1,28 @@
-// api/save.js
-import { put } from '@vercel/blob';
+import fs from 'fs/promises';
+import path from 'path';
 import crypto from 'crypto';
+import os from 'os';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: 'Método não permitido' });
+  }
+
+  const { code } = req.body;
+
+  if (!code || typeof code !== 'string') {
+    return res.status(400).json({ error: 'Código inválido' });
   }
 
   try {
-    const { code } = req.body;
-    
-    if (!code || typeof code !== 'string') {
-      return res.status(400).json({ error: 'Código inválido' });
-    }
-
-    // Gerar ID único
     const id = crypto.randomUUID();
-    
-    // Salvar no Vercel Blob
-    const blob = await put(`scripts/${id}.lua`, code, {
-      access: 'public',
-      contentType: 'text/plain'
-    });
+    const filePath = path.join(os.tmpdir(), `${id}.lua`);
 
-    res.status(200).json({ 
-      id: id,
-      url: blob.url 
-    });
+    await fs.writeFile(filePath, code, 'utf-8');
 
-  } catch (error) {
-    console.error('Erro ao salvar:', error);
+    res.status(200).json({ id, url: `/api/raw?id=${id}` });
+  } catch (err) {
+    console.error('Erro ao salvar script:', err);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
