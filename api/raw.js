@@ -1,20 +1,16 @@
-import { NextResponse } from 'next/server';
+import fs from 'fs/promises';
+import path from 'path';
 
-let storage = {};
+const storagePath = path.resolve('./api/storage.json');
 
 export default async function handler(req, res) {
-  if (req.method !== 'GET') {
-    return res.status(405).send('Método não permitido');
-  }
-
-  const id = req.query.id;
-  if (!id || typeof id !== 'string' || !/^[a-f0-9]{12}$/.test(id)) {
+  const { id } = req.query;
+  if (!id || !/^[a-f0-9]{12}$/.test(id)) {
     return res.status(404).send('ID inválido');
   }
 
   const ua = req.headers['user-agent'] || '';
   if (!ua.includes('Roblox/WinHttp')) {
-    // Tela Acesso Restrito
     return res.status(403).send(`
       <!DOCTYPE html>
       <html lang="pt-BR" class="h-full">
@@ -26,18 +22,25 @@ export default async function handler(req, res) {
       <body class="bg-red-900 text-white flex items-center justify-center h-full">
         <div class="text-center space-y-4">
           <h1 class="text-4xl font-bold text-red-300">🚫 Acesso Restrito!</h1>
-          <p class="text-lg">Este conteúdo só pode ser acessado pelo dono</p>
+          <p class="text-lg">Este conteúdo só pode ser acessado pelo Dono.</p>
         </div>
       </body>
       </html>
     `);
   }
 
-  const code = storage[id];
-  if (!code) {
-    return res.status(404).send('Código não encontrado');
-  }
+  try {
+    const file = await fs.readFile(storagePath, 'utf-8');
+    const json = JSON.parse(file);
+    const code = json[id];
 
-  res.setHeader('Content-Type', 'text/plain');
-  res.status(200).send(code);
+    if (!code) {
+      return res.status(404).send('Código não encontrado');
+    }
+
+    res.setHeader('Content-Type', 'text/plain');
+    res.status(200).send(code);
+  } catch {
+    res.status(500).send('Erro interno ao ler código');
+  }
 }
