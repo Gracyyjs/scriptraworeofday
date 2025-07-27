@@ -1,6 +1,4 @@
-// api/save.js
-
-import { saveCode } from '../lib/blob.js';
+import { saveCode } from '../../lib/blob.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -13,7 +11,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Código ausente' });
     }
 
-    const id = Math.random().toString(36).substr(2, 10);
+    const id = Math.random().toString(36).substring(2, 10);
     const url = await saveCode(id, code);
 
     return res.status(200).json({ id, url });
